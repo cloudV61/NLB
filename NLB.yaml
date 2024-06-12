@@ -1,0 +1,99 @@
+USER-SUPPLIED VALUES:
+enterprise:
+  enabled: true
+  license_secret: kong-enterprise-license
+  portal:
+    enabled: false
+  rbac:
+    enabled: false
+  smtp:
+    enabled: false
+env:
+  anonymous_reports: false
+  trusted_ips : 0.0.0.0/0
+  tracing_instrumentations: all
+  tracing_sampling_rate: 1.0
+  tracing: all 
+  cluster_cert: /etc/secrets/kong-cluster-cert/tls.crt
+  cluster_cert_key: /etc/secrets/kong-cluster-cert/tls.key
+  cluster_control_plane: kong-cp-kong-cluster.kong-cp.svc.cluster.local:8005
+  cluster_telemetry_endpoint: kong-cp-kong-clustertelemetry.kong-cp.svc.cluster.local:8006
+  database: "off"
+  lua_ssl_trusted_certificate: /etc/secrets/kong-cluster-cert/tls.crt
+  role: data_plane
+  status_listen: 0.0.0.0:8100
+image:
+  repository: kong/kong-gateway
+  tag: "3.6.1.1"
+ingressController:
+  enabled: false
+manager:
+  enabled: false
+portal:
+  enabled: false
+portalapi:
+  enabled: false
+proxy:
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: "Name=CHANGE"
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "https"
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+    service.beta.kubernetes.io/aws-load-balancer-subnets: CHANGE
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+    service.beta.kubernetes.io/aws-load-balancer-access-log-enabled: "true"
+    service.beta.kubernetes.io/aws-load-balancer-access-log-s3-bucket-name: "CHANGE"
+    service.beta.kubernetes.io/aws-load-balancer-access-log-s3-bucket-prefix: "CHANGE"
+    service.beta.kubernetes.io/aws-load-balancer-attributes: deletion_protection.enabled=true
+  enabled: true
+  http:
+    containerPort: 8000
+    enabled: false
+    hostPort: 80
+  labels:
+    enable-metrics: true
+  tls:
+    containerPort: 8443
+    enabled: true
+    hostPort: 443
+    certProvided: true
+
+certificates:
+  enabled: true
+  issuer: selfsigned-ca
+  cluster:
+    enabled: false
+  admin:
+    enabled: false
+    commonName: CHANGE
+  portal:
+    enabled: false
+    commonName: CHANGE
+  proxy:
+    enabled: true
+    commonName: CHANGE
+    dnsNames:
+    - 'CHANGE'
+
+  type: LoadBalancer
+secretVolumes:
+- kong-cluster-cert
+resources:
+  requests:
+    cpu: 300m
+    memory: "300Mi"
+  limits:
+    cpu: "1200m"
+    memory: "800Mi"
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 20
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75
